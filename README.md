@@ -1,7 +1,7 @@
 # In Memory Diff
 
 `in-memory-diff` takes two source buffers and treats their content as
-a set of unordered lines, as one would excpect for a file like
+a set of unordered lines, as one would expect for a file like
 `~/.authinfo.gpg`, for example. We don't use diff(1) to diff the
 buffers and thus we don't write temporary files to disk. The result is
 two buffers, `*A*` and `*B*`. Each contains the lines the other buffer
