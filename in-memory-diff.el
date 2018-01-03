@@ -83,7 +83,7 @@ This buffer is in `in-memory-this'."
     (with-current-buffer in-memory-this
       (goto-char (point-min))
       (while (re-search-forward (concat "^" (regexp-quote line) "$") nil t)
-	(replace-match "")))
+        (replace-match "")))
     (in-memory-delete-this-line)))
 
 (defun in-memory-diff-visit ()
@@ -95,7 +95,7 @@ This buffer is in `in-memory-this'."
     (pop-to-buffer in-memory-this)
     (goto-char (point-min))
     (when (re-search-forward (concat "^" (regexp-quote line) "$") nil t)
-	(goto-char (match-beginning 0)))))
+      (goto-char (match-beginning 0)))))
 
 (defvar in-memory-diff-mode-map
   (let ((map (make-sparse-keymap)))
@@ -123,22 +123,22 @@ We don't use diff(1) to diff the buffers and don't write
 temporary files to disk."
   (interactive "bBuffer A: \nbBuffer B: ")
   (let ((lines (mapcar (lambda (buf)
-			 (with-current-buffer buf
-			   (split-string (buffer-string) "\n")))
-		       (list buffer1 buffer2))))
+                         (with-current-buffer buf
+                           (split-string (buffer-string) "\n")))
+                       (list buffer1 buffer2))))
 
     (with-current-buffer (get-buffer-create "*A*")
       (let ((inhibit-read-only t))
-	(erase-buffer)
-	(apply 'in-memory-insert lines))
+        (erase-buffer)
+        (apply 'in-memory-insert lines))
       (in-memory-diff-mode)
       (set (make-local-variable 'in-memory-this) buffer1)
       (set (make-local-variable 'in-memory-other) buffer2)
       (display-buffer (current-buffer)))
     (with-current-buffer (get-buffer-create "*B*")
       (let ((inhibit-read-only t))
-	(erase-buffer)
-	(apply 'in-memory-insert (reverse lines)))
+        (erase-buffer)
+        (apply 'in-memory-insert (reverse lines)))
       (in-memory-diff-mode)
       (set (make-local-variable 'in-memory-this) buffer2)
       (set (make-local-variable 'in-memory-other) buffer1)
