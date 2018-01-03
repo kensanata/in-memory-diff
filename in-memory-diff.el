@@ -114,6 +114,10 @@ This buffer is in `in-memory-this'."
     (when (not (member line lines2))
       (insert line "\n"))))
 
+(defun in-memory-name-buffer (bufname)
+  "Name an `in-memory-diff' buffer according to original buffer BUFNAME."
+  (format " *extra lines in %s*" bufname))
+
 (defun in-memory-diff (buffer1 buffer2)
   "Show the difference between two buffers.
 
@@ -121,13 +125,13 @@ BUFFER1 and BUFFER2 are treated as a set of unordered lines, as
 one would excpect for a file like ~/.authinfo.gpg, for example.
 We don't use diff(1) to diff the buffers and don't write
 temporary files to disk."
-  (interactive "bBuffer A: \nbBuffer B: ")
+  (interactive "bFirst buffer: \nbSecond buffer: ")
   (let ((lines (mapcar (lambda (buf)
                          (with-current-buffer buf
                            (split-string (buffer-string) "\n")))
                        (list buffer1 buffer2))))
 
-    (with-current-buffer (get-buffer-create "*A*")
+    (with-current-buffer (get-buffer-create (in-memory-name-buffer buffer1))
       (let ((inhibit-read-only t))
         (erase-buffer)
         (apply 'in-memory-insert lines))
@@ -135,7 +139,7 @@ temporary files to disk."
       (set (make-local-variable 'in-memory-this) buffer1)
       (set (make-local-variable 'in-memory-other) buffer2)
       (display-buffer (current-buffer)))
-    (with-current-buffer (get-buffer-create "*B*")
+    (with-current-buffer (get-buffer-create (in-memory-name-buffer buffer2))
       (let ((inhibit-read-only t))
         (erase-buffer)
         (apply 'in-memory-insert (reverse lines)))
