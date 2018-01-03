@@ -1,6 +1,6 @@
 ;;; in-memory-diff.el --- diff lines of two buffers
 
-;; Copyright (C) 2017 Alex Schroeder
+;; Copyright (C) 2017-2018 Alex Schroeder, Dan Harms
 
 ;; Author: Alex Schroeder <alex@gnu.org>
 ;; Version: 0.1
