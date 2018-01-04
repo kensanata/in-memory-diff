@@ -1,10 +1,11 @@
 ;;; in-memory-diff.el --- diff lines of two buffers
 
-;; Copyright (C) 2017 Alex Schroeder
+;; Copyright (C) 2017-2018 Alex Schroeder, Dan Harms
 
 ;; Author: Alex Schroeder <alex@gnu.org>
 ;; Version: 0.1
-;; Keywords: text
+;; Keywords: text tools unix
+;; URL: https://github.com/kensanata/in-memory-diff.git
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -27,10 +28,10 @@
 
 ;; `in-memory-diff' takes two source buffers and treats their content
 ;; as a set of unordered lines, as one would excpect for a file like
-;; ~/.authinfo.gpg, for example. We don't use diff(1) to diff the
-;; buffers and thus we don't write temporary files to disk. The result
-;; is two buffers, *A* and *B*. Each contains the lines the other
-;; buffer does not contain. These files are in a major mode with the
+;; ~/.authinfo.gpg, for example.  We don't use diff(1) to diff the
+;; buffers and thus we don't write temporary files to disk.  The result
+;; is two buffers, *A* and *B*.  Each contains the lines the other
+;; buffer does not contain.  These files are in a major mode with the
 ;; following interesting keys bindings:
 ;;
 ;; c – copy the current line to the other source buffer
@@ -44,10 +45,10 @@
 ;;; Code:
 
 (defvar in-memory-this nil
-  "This source buffer")
+  "This source buffer.")
 
 (defvar in-memory-other nil
-  "The other source buffer")
+  "The other source buffer.")
 
 (defun in-memory-line ()
   "Return the current line."
@@ -82,7 +83,7 @@ This buffer is in `in-memory-this'."
     (with-current-buffer in-memory-this
       (goto-char (point-min))
       (while (re-search-forward (concat "^" (regexp-quote line) "$") nil t)
-	(replace-match "")))
+        (replace-match "")))
     (in-memory-delete-this-line)))
 
 (defun in-memory-diff-visit ()
@@ -94,7 +95,7 @@ This buffer is in `in-memory-this'."
     (pop-to-buffer in-memory-this)
     (goto-char (point-min))
     (when (re-search-forward (concat "^" (regexp-quote line) "$") nil t)
-	(goto-char (match-beginning 0)))))
+      (goto-char (match-beginning 0)))))
 
 (defvar in-memory-diff-mode-map
   (let ((map (make-sparse-keymap)))
@@ -103,42 +104,45 @@ This buffer is in `in-memory-this'."
     (define-key map "q" 'bury-buffer)
     (define-key map (kbd "RET") 'in-memory-diff-visit)
     map)
-  "Keymap for In Memory Diff mode")
+  "Keymap for In Memory Diff mode.")
 
 (define-derived-mode in-memory-diff-mode fundamental-mode "extra-lines")
 
 (defun in-memory-insert (lines1 lines2)
-  "Insert all the lines of LINES1 not in LINES2
-in the current buffer."
+  "Insert all the lines of LINES1 not in LINES2 in the current buffer."
   (dolist (line lines1)
     (when (not (member line lines2))
       (insert line "\n"))))
 
+(defun in-memory-name-buffer (bufname)
+  "Name an `in-memory-diff' buffer according to original buffer BUFNAME."
+  (format " *extra lines in %s*" bufname))
+
 (defun in-memory-diff (buffer1 buffer2)
-  "Show the difference between two buffers
+  "Show the difference between two buffers.
 
 BUFFER1 and BUFFER2 are treated as a set of unordered lines, as
 one would excpect for a file like ~/.authinfo.gpg, for example.
 We don't use diff(1) to diff the buffers and don't write
 temporary files to disk."
-  (interactive "bBuffer A: \nbBuffer B: ")
+  (interactive "bFirst buffer: \nbSecond buffer: ")
   (let ((lines (mapcar (lambda (buf)
-			 (with-current-buffer buf
-			   (split-string (buffer-string) "\n")))
-		       (list buffer1 buffer2))))
-    
-    (with-current-buffer (get-buffer-create "*A*")
+                         (with-current-buffer buf
+                           (split-string (buffer-string) "\n")))
+                       (list buffer1 buffer2))))
+
+    (with-current-buffer (get-buffer-create (in-memory-name-buffer buffer1))
       (let ((inhibit-read-only t))
-	(erase-buffer)
-	(apply 'in-memory-insert lines))
+        (erase-buffer)
+        (apply 'in-memory-insert lines))
       (in-memory-diff-mode)
       (set (make-local-variable 'in-memory-this) buffer1)
       (set (make-local-variable 'in-memory-other) buffer2)
       (display-buffer (current-buffer)))
-    (with-current-buffer (get-buffer-create "*B*")
+    (with-current-buffer (get-buffer-create (in-memory-name-buffer buffer2))
       (let ((inhibit-read-only t))
-	(erase-buffer)
-	(apply 'in-memory-insert (reverse lines)))
+        (erase-buffer)
+        (apply 'in-memory-insert (reverse lines)))
       (in-memory-diff-mode)
       (set (make-local-variable 'in-memory-this) buffer2)
       (set (make-local-variable 'in-memory-other) buffer1)
