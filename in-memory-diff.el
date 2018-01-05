@@ -148,6 +148,21 @@ temporary files to disk."
       (set (make-local-variable 'in-memory-other) buffer1)
       (display-buffer (current-buffer) 'display-buffer-pop-up-window))))
 
+(defun in-memory-diff-files (file1 file2)
+  "Show the difference between two files.
+FILE1 and FILE2 are treated as a set of unordered lines, as
+one would excpect for a file like ~/.authinfo.gpg, for example.
+We don't use diff(1) to diff the buffers and don't write
+temporary files to disk."
+  (interactive "fFirst file: \nfSecond file: ")
+  (let ((buf1 (progn
+                (find-file file1)
+                (current-buffer)))
+        (buf2 (progn
+                (find-file file2)
+                (current-buffer))))
+  (in-memory-diff buf1 buf2)))
+
 (provide 'in-memory-diff)
 
 ;;; in-memory-diff.el ends here
